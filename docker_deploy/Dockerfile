@@ -1,4 +1,26 @@
 #make sure host name at db_param.h file is mydb instead of localhost
+version: "2"
+services:
+  mydb:
+    image: postgres:12-alpine3.15
+    environment:
+      POSTGRES_PASSWORD: abc123
+      POSTGRES_USER: postgres
+      POSTGRES_DB: worldSim
+    ports:
+      - "4444:5432"
+    restart: always
+  server:
+    build: ./
+    command: bash -c "./wait-for-it.sh mydb:5432 --strict -- ./server 12345 23456 0"
+    ports:
+      - "12345:12345"
+      - "23456:23456"
+    depends_on:
+      - mydb
+root@vultr:~/world_simulator_exec/docker_deploy# cat Dockerfile 
+#make sure host name at db_param.h file is mydb instead of localhost
 FROM yunjingliu/world_sim:base
 ADD . /worldsim
 WORKDIR /worldsim
+
