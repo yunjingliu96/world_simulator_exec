@@ -1,26 +1,21 @@
 #make sure host name at db_param.h file is mydb instead of localhost
-version: "2"
-services:
-  mydb:
-    image: postgres:12-alpine3.15
-    environment:
-      POSTGRES_PASSWORD: abc123
-      POSTGRES_USER: postgres
-      POSTGRES_DB: worldSim
-    ports:
-      - "4444:5432"
-    restart: always
-  server:
-    build: ./
-    command: bash -c "./wait-for-it.sh mydb:5432 --strict -- ./server 12345 23456 0"
-    ports:
-      - "12345:12345"
-      - "23456:23456"
-    depends_on:
-      - mydb
-root@vultr:~/world_simulator_exec/docker_deploy# cat Dockerfile 
-#make sure host name at db_param.h file is mydb instead of localhost
-FROM yunjingliu/world_sim:base
+FROM ubuntu:20.04
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install --assume-yes apt-utils
+RUN apt-get -y update && apt-get -y install gcc g++ make git wget autoconf libtool automake python pkg-config
+RUN apt-get -y install postgresql build-essential libpq-dev libpqxx-dev
+
+
+EXPOSE 1234
+EXPOSE 2345
+
+# install google protocol buffer
+RUN wget https://github.com/google/protobuf/releases/download/v3.6.0/protobuf-cpp-3.6.0.tar.gz
+RUN tar xzf protobuf-cpp-3.6.0.tar.gz
+RUN cd ./protobuf-3.6.0  && ./configure && make && make install
+RUN ldconfig
+
+RUN cd ..
+
 ADD . /worldsim
 WORKDIR /worldsim
-
