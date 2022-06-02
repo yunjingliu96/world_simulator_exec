@@ -1,11 +1,13 @@
 version: "2"
 services:
   mydb:
-    image: postgres
+    image: postgres:12-alpine3.15
     environment:
       POSTGRES_PASSWORD: abc123
       POSTGRES_USER: postgres
       POSTGRES_DB: worldSim
+    ports:
+      - "4444:5432"
     restart: always
   server:
     build: ./
